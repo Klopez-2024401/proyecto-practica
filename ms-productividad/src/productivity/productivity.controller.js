@@ -5,7 +5,7 @@ import { taskService } from './productivity.service.js';
  */
 export const getDashboard = async (req, res) => {
   try {
-    const token = req.headers.authorization.split(' ')[1];
+    const token = req.headers.authorization?.split(' ')[1] || 'dummy_token';
     const tasks = await taskService.getTasks(token);
 
     const totalTasks = tasks.length;
@@ -45,7 +45,7 @@ export const getDashboard = async (req, res) => {
  */
 export const getOverdueTasks = async (req, res) => {
   try {
-    const token = req.headers.authorization.split(' ')[1];
+    const token = req.headers.authorization?.split(' ')[1] || 'dummy_token';
     const tasks = await taskService.getTasks(token);
 
     const now = new Date();
@@ -77,7 +77,7 @@ export const getOverdueTasks = async (req, res) => {
  */
 export const getPrioritySummary = async (req, res) => {
   try {
-    const token = req.headers.authorization.split(' ')[1];
+    const token = req.headers.authorization?.split(' ')[1] || 'dummy_token';
     const tasks = await taskService.getTasks(token);
 
     const summary = {
@@ -115,6 +115,62 @@ export const getPrioritySummary = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'No se pudo obtener el resumen de prioridades debido a un error de comunicación.',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Obtiene las tareas pendientes (estado NO sea "Completada").
+ */
+export const getPendingTasks = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1] || 'dummy_token';
+    const tasks = await taskService.getTasks(token);
+
+    const pendingTasks = tasks.filter(task => task.estado !== 'Completada');
+
+    return res.status(200).json({
+      success: true,
+      data: pendingTasks
+    });
+  } catch (error) {
+    console.error('Error en getPendingTasks:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'No se pudieron obtener las tareas pendientes debido a un error de comunicación.',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Calcula y devuelve exclusivamente las estadísticas de completación de tareas.
+ */
+export const getCompletionStatistics = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1] || 'dummy_token';
+    const tasks = await taskService.getTasks(token);
+
+    const totalTasks = tasks.length;
+    const completedTasks = tasks.filter(task => task.estado === 'Completada').length;
+    const completedPercentage = totalTasks > 0
+      ? parseFloat(((completedTasks / totalTasks) * 100).toFixed(2))
+      : 0;
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        totalTasks,
+        completedTasks,
+        completedPercentage
+      }
+    });
+  } catch (error) {
+    console.error('Error en getCompletionStatistics:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'No se pudieron obtener las estadísticas de completación debido a un error de comunicación.',
       error: error.message
     });
   }
