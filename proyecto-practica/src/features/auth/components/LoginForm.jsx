@@ -1,102 +1,18 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { authApi } from '../../../shared/api/authApi.js'
+import { saveSession } from '../../../shared/utils/authSession.js'
+import {
+  MailIcon,
+  LockIcon,
+  EyeIcon,
+  EyeOffIcon,
+  AlertIcon,
+  SpinnerIcon,
+} from './AuthIcons.jsx'
 
 const REMEMBERED_EMAIL_KEY = 'rememberedEmail'
-
-const MailIcon = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-    <path
-      d="M3 6.75A2.25 2.25 0 0 1 5.25 4.5h13.5A2.25 2.25 0 0 1 21 6.75v10.5A2.25 2.25 0 0 1 18.75 19.5H5.25A2.25 2.25 0 0 1 3 17.25V6.75Z"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    />
-    <path
-      d="m4 7 7.386 5.13a1 1 0 0 0 1.228 0L20 7"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-
-const LockIcon = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-    <rect
-      x="4.5"
-      y="10.5"
-      width="15"
-      height="9.5"
-      rx="2"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    />
-    <path
-      d="M7.75 10.5V7.75a4.25 4.25 0 1 1 8.5 0v2.75"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    />
-  </svg>
-)
-
-const EyeIcon = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-    <path
-      d="M2.25 12S5.25 5.25 12 5.25 21.75 12 21.75 12 18.75 18.75 12 18.75 2.25 12 2.25 12Z"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinejoin="round"
-    />
-    <circle cx="12" cy="12" r="2.75" stroke="currentColor" strokeWidth="1.5" />
-  </svg>
-)
-
-const EyeOffIcon = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-    <path
-      d="M3 3l18 18M10.58 10.58a2.75 2.75 0 0 0 3.89 3.89M6.53 6.65C4.24 8.12 2.25 12 2.25 12S5.25 18.75 12 18.75c1.9 0 3.5-.53 4.8-1.28M9.88 5.4A9.5 9.5 0 0 1 12 5.25c6.75 0 9.75 6.75 9.75 6.75a15.6 15.6 0 0 1-2.53 3.63"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-
-const AlertIcon = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
-    <path
-      d="M12 8v5"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    />
-    <circle cx="12" cy="15.75" r="0.9" fill="currentColor" />
-  </svg>
-)
-
-const SpinnerIcon = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-    <circle
-      cx="12"
-      cy="12"
-      r="9"
-      stroke="currentColor"
-      strokeWidth="3"
-      className="opacity-25"
-    />
-    <path
-      d="M21 12a9 9 0 0 0-9-9"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      className="opacity-90"
-    />
-  </svg>
-)
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export const LoginForm = () => {
   const navigate = useNavigate()
@@ -109,40 +25,73 @@ export const LoginForm = () => {
     () => Boolean(localStorage.getItem(REMEMBERED_EMAIL_KEY))
   )
   const [error, setError] = useState(null)
+  const [unverifiedEmail, setUnverifiedEmail] = useState(null)
+  const [resendStatus, setResendStatus] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
+
+  const validateForm = () => {
+    if (!email.trim() || !password.trim()) {
+      return 'Correo y contraseña son obligatorios.'
+    }
+    if (!EMAIL_REGEX.test(email.trim())) {
+      return 'El correo electrónico no tiene un formato válido.'
+    }
+    return null
+  }
 
   const handleLoginSubmit = async (event) => {
     event.preventDefault()
     setError(null)
+    setUnverifiedEmail(null)
+    setResendStatus(null)
+
+    const validationError = validateForm()
+    if (validationError) {
+      setError(validationError)
+      return
+    }
+
     setIsLoading(true)
 
     try {
       const response = await authApi.post('/auth/login', {
-        emailOrUsername: email,
+        email: email.trim(),
         password,
       })
 
-      const { token, userDetails } = response.data
-      localStorage.setItem('token', token)
-      localStorage.setItem('role', userDetails.role)
+      const { token, user } = response.data
+      saveSession(token, user)
 
       if (rememberMe) {
-        localStorage.setItem(REMEMBERED_EMAIL_KEY, email)
+        localStorage.setItem(REMEMBERED_EMAIL_KEY, email.trim())
       } else {
         localStorage.removeItem(REMEMBERED_EMAIL_KEY)
       }
 
-      if (userDetails.role === 'PLATFORM_ADMIN') {
-        navigate('/admin')
-      } else {
-        navigate('/client')
-      }
+      navigate('/tasks')
     } catch (err) {
-      setError(
+      const status = err.response?.status
+      const message =
         err.response?.data?.message || 'No se pudo iniciar sesión. Intenta de nuevo.'
-      )
+
+      setError(message)
+      if (status === 403) {
+        setUnverifiedEmail(email.trim())
+      }
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleResendVerification = async () => {
+    if (!unverifiedEmail) return
+
+    setResendStatus('sending')
+    try {
+      await authApi.post('/auth/resend-verification', { email: unverifiedEmail })
+      setResendStatus('sent')
+    } catch {
+      setResendStatus('error')
     }
   }
 
@@ -218,13 +167,12 @@ export const LoginForm = () => {
           />
           Recordarme
         </label>
-        <a
-          href="#"
-          onClick={(event) => event.preventDefault()}
+        <Link
+          to="/forgot-password"
           className="font-medium text-secondary transition-colors hover:text-primary"
         >
           ¿Olvidaste tu contraseña?
-        </a>
+        </Link>
       </div>
 
       {error && (
@@ -233,7 +181,25 @@ export const LoginForm = () => {
           className="flex items-start gap-2 rounded-xl border border-error/20 bg-error/10 px-3.5 py-2.5 text-sm text-error animate-fade-in"
         >
           <AlertIcon className="mt-0.5 h-4 w-4 shrink-0" />
-          <span>{error}</span>
+          <div className="space-y-1.5">
+            <span>{error}</span>
+            {unverifiedEmail && (
+              <div>
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={resendStatus === 'sending' || resendStatus === 'sent'}
+                  className="font-medium text-secondary underline decoration-secondary/40 underline-offset-2 transition-colors hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {resendStatus === 'sent'
+                    ? 'Código reenviado, revisa tu correo'
+                    : resendStatus === 'sending'
+                      ? 'Reenviando...'
+                      : 'Reenviar código de verificación'}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -245,6 +211,16 @@ export const LoginForm = () => {
         {isLoading && <SpinnerIcon className="h-4 w-4 animate-spin" />}
         {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
       </button>
+
+      <p className="text-center text-sm text-text-secondary">
+        ¿No tienes cuenta?{' '}
+        <Link
+          to="/register"
+          className="font-medium text-secondary transition-colors hover:text-primary"
+        >
+          Regístrate
+        </Link>
+      </p>
     </form>
   )
 }

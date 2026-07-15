@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import { DEFAULT_USER } from '../helper/default-user.js';
 
 dotenv.config();
 
@@ -11,6 +12,12 @@ export const connectMongoDB = async () => {
     await mongoose.connect(mongodbUri);
     console.log('Conectado a MongoDB');
     console.log('MongoDB | Base de datos:', mongoose.connection.db.databaseName);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(
+        `Usuario de prueba -> correo: ${DEFAULT_USER.email} | contraseña: ${DEFAULT_USER.password}`
+      );
+      console.log('(Ejecuta "npm run seed" si todavía no existe en esta base de datos)');
+    }
     return mongoose.connection;
   } catch (error) {
     console.error('MongoDB connection error:', error.message);
