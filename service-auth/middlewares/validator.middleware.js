@@ -39,6 +39,15 @@ export const validateRegister = [
         .isLength({ min: 2, max: 50 })
         .withMessage('El apellido debe tener entre 2 y 50 caracteres.'),
 
+    body('username')
+        .trim()
+        .notEmpty()
+        .withMessage('El nombre de usuario es obligatorio.')
+        .isLength({ min: 3, max: 30 })
+        .withMessage('El nombre de usuario debe tener entre 3 y 30 caracteres.')
+        .matches(/^[a-zA-Z0-9_.-]+$/)
+        .withMessage('El nombre de usuario solo puede contener letras, números, guiones, guiones bajos y puntos.'),
+
     body('email')
         .trim()
         .notEmpty()
@@ -63,12 +72,10 @@ export const validateRegister = [
  * Validadores para LOGIN
  */
 export const validateLogin = [
-    body('email')
+    body('emailOrUsername')
         .trim()
         .notEmpty()
-        .withMessage('El correo electrónico es obligatorio.')
-        .isEmail()
-        .withMessage('El correo electrónico no tiene un formato válido.'),
+        .withMessage('El correo o nombre de usuario es obligatorio.'),
 
     body('password')
         .notEmpty()

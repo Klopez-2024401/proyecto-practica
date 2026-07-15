@@ -19,6 +19,7 @@ const seedDefaultUser = async () => {
   await User.create({
     name: DEFAULT_USER.name,
     surname: DEFAULT_USER.surname,
+    username: DEFAULT_USER.username,
     email: DEFAULT_USER.email,
     password: hashedPassword,
     phone: DEFAULT_USER.phone,
@@ -27,6 +28,7 @@ const seedDefaultUser = async () => {
 
   console.log('Usuario de prueba creado correctamente:');
   console.log(`  Correo: ${DEFAULT_USER.email}`);
+  console.log(`  Usuario: ${DEFAULT_USER.username}`);
   console.log(`  Contraseña: ${DEFAULT_USER.password}`);
 
   await disconnectMongoDB();

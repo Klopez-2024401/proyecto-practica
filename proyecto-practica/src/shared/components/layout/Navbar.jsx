@@ -8,12 +8,12 @@ export const Navbar = () => {
           Kairo
         </Link>
         <div className="flex items-center gap-3">
-          <button
-            type="button"
+          <Link
+            to="/register"
             className="rounded-xl border border-border px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-surface"
           >
             Registrarse
-          </button>
+          </Link>
           <Link
             to="/login"
             className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary/20 transition-all duration-200 hover:bg-secondary hover:shadow-lg hover:shadow-secondary/25 active:scale-[0.98]"

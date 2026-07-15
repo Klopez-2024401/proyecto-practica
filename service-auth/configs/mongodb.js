@@ -14,7 +14,7 @@ export const connectMongoDB = async () => {
     console.log('MongoDB | Base de datos:', mongoose.connection.db.databaseName);
     if (process.env.NODE_ENV === 'development') {
       console.log(
-        `Usuario de prueba -> correo: ${DEFAULT_USER.email} | contraseña: ${DEFAULT_USER.password}`
+        `Usuario de prueba -> correo: ${DEFAULT_USER.email} | usuario: ${DEFAULT_USER.username} | contraseña: ${DEFAULT_USER.password}`
       );
       console.log('(Ejecuta "npm run seed" si todavía no existe en esta base de datos)');
     }

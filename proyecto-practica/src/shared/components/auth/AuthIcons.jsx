@@ -128,3 +128,15 @@ export const PhoneIcon = (props) => (
     />
   </svg>
 )
+
+export const CameraIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+    <path
+      d="M4 8.25A1.75 1.75 0 0 1 5.75 6.5h1.4l.9-1.5a1.5 1.5 0 0 1 1.29-.75h5.32a1.5 1.5 0 0 1 1.29.75l.9 1.5h1.4A1.75 1.75 0 0 1 20 8.25v9A1.75 1.75 0 0 1 18.25 19H5.75A1.75 1.75 0 0 1 4 17.25v-9Z"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    <circle cx="12" cy="12.5" r="3.25" stroke="currentColor" strokeWidth="1.5" />
+  </svg>
+)

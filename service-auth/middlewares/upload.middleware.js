@@ -14,13 +14,25 @@ const storage = new CloudinaryStorage({
 
 const fileFilter = (req, file, cb) => {
   if (!file.mimetype.startsWith('image/')) {
-    return cb(new Error('El archivo debe ser una imagen (jpg, jpeg, png o webp).'));
+    const error = new Error('El archivo debe ser una imagen (jpg, jpeg, png o webp).');
+    error.statusCode = 400;
+    return cb(error);
   }
   cb(null, true);
 };
 
-export const uploadProfilePicture = multer({
+const rawUpload = multer({
   storage,
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
 }).single('profilePicture');
+
+export const uploadProfilePicture = (req, res, next) => {
+  rawUpload(req, res, (error) => {
+    if (error) {
+      error.statusCode = error.statusCode || 400;
+      return next(error);
+    }
+    next();
+  });
+};

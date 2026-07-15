@@ -1,4 +1,4 @@
-import { AuthShell } from '../components/AuthShell.jsx'
+import { AuthShell } from '../../../shared/components/auth/index.js'
 import { LoginForm } from '../components/LoginForm.jsx'
 
 export const LoginPage = () => {

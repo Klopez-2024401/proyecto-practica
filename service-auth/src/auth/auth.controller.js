@@ -11,9 +11,12 @@ import {
 } from './auth.service.js';
 
 export const register = asyncHandler(async (req, res) => {
-  const { name, surname, email, password, phone, profilePicture } = req.body;
+  const { name, surname, username, email, password, phone } = req.body;
+  // Si se sube un archivo (multipart), se usa la URL de Cloudinary; si no,
+  // registerUser deja el campo vacío y el usuario queda con el avatar por defecto.
+  const profilePicture = req.file ? req.file.path : req.body.profilePicture;
 
-  const user = await registerUser({ name, surname, email, password, phone, profilePicture });
+  const user = await registerUser({ name, surname, username, email, password, phone, profilePicture });
 
   res.status(201).json({
     success: true,
@@ -23,9 +26,9 @@ export const register = asyncHandler(async (req, res) => {
 });
 
 export const login = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { emailOrUsername, password } = req.body;
 
-  const { token, user } = await loginUser(email, password);
+  const { token, user } = await loginUser(emailOrUsername, password);
 
   res.status(200).json({
     success: true,
