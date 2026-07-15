@@ -1,0 +1,221 @@
+{
+	"info": {
+		"_postman_id": "a90dfb2f-76c2-46be-aa98-e6b7fd16c31a",
+		"name": "ms-productividad (Servicio B)",
+		"description": "Colección de peticiones HTTP para probar y verificar los endpoints de productividad (Servicio B) y conectividad.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/health",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"health"
+					]
+				},
+				"description": "Verifica que el servicio de productividad esté levantado y saludable."
+			},
+			"response": []
+		},
+		{
+			"name": "Dashboard general de productividad",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/api/productivity/dashboard",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"api",
+						"productivity",
+						"dashboard"
+					]
+				},
+				"description": "Retorna el conteo global de tareas, total de completadas, total de pendientes y sus correspondientes porcentajes."
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener tareas pendientes",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/api/productivity/tasks/pending",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"api",
+						"productivity",
+						"tasks",
+						"pending"
+					]
+				},
+				"description": "Retorna el listado de tareas cuyo estado no sea 'Completada'."
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener tareas vencidas",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/api/productivity/tasks/overdue",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"api",
+						"productivity",
+						"tasks",
+						"overdue"
+					]
+				},
+				"description": "Retorna las tareas cuya fecha límite ya pasó y no se encuentran en estado 'Completada'."
+			},
+			"response": []
+		},
+		{
+			"name": "Resumen de tareas por prioridad",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/api/productivity/summary/priorities",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"api",
+						"productivity",
+						"summary",
+						"priorities"
+					]
+				},
+				"description": "Agrupa y cuenta las tareas según prioridad (baja, media, alta)."
+			},
+			"response": []
+		},
+		{
+			"name": "Estadísticas de completación de tareas",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/api/productivity/statistics/completion",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"api",
+						"productivity",
+						"statistics",
+						"completion"
+					]
+				},
+				"description": "Muestra conteos enfocados únicamente en la tasa y número de tareas finalizadas."
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "token",
+			"value": "pega_aqui_tu_jwt_token",
+			"type": "string"
+		}
+	]
+}
