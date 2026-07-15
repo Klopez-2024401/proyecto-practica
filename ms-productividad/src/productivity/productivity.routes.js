@@ -10,8 +10,8 @@ import {
 
 const router = Router();
 
-// Aplicar el middleware de autenticación a todas las rutas (desactivado temporalmente sin Auth)
-// router.use(authMiddleware);
+// Aplicar el middleware de autenticación a todas las rutas
+router.use(authMiddleware);
 
 router.get('/dashboard', getDashboard);
 router.get('/tasks/pending', getPendingTasks);

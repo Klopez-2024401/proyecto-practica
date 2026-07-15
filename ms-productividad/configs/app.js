@@ -51,13 +51,13 @@ export const initServer = async () => {
     routes(app);
 
     const server = app.listen(PORT, () => {
-      console.log(`\n✅ Servicio B (Gestión de Productividad) iniciado en el puerto ${PORT}`);
+      console.log(`\nServicio B (Gestión de Productividad) iniciado en el puerto ${PORT}`);
       console.log(`Servicio de Tareas (Servicio A) configurado en: ${process.env.TASKS_SERVICE_URL}`);
     });
 
     return server;
   } catch (error) {
-    console.error(`❌ Error al iniciar el servidor de productividad: ${error.message}`);
+    console.error(`Error al iniciar el servidor de productividad: ${error.message}`);
     process.exit(1);
   }
 };
