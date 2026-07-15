@@ -74,3 +74,70 @@ export const validateLogin = [
         .notEmpty()
         .withMessage('La contraseña es obligatoria.'),
 ];
+
+/**
+ * Validadores para VERIFICAR CUENTA
+ */
+export const validateVerifyEmail = [
+    body('email')
+        .trim()
+        .notEmpty()
+        .withMessage('El correo electrónico es obligatorio.')
+        .isEmail()
+        .withMessage('El correo electrónico no tiene un formato válido.'),
+
+    body('token')
+        .trim()
+        .notEmpty()
+        .withMessage('El token de verificación es obligatorio.'),
+];
+
+/**
+ * Validadores para CAMBIAR CONTRASEÑA (usuario autenticado)
+ */
+export const validateChangePassword = [
+    body('currentPassword')
+        .notEmpty()
+        .withMessage('La contraseña actual es obligatoria.'),
+
+    body('newPassword')
+        .notEmpty()
+        .withMessage('La nueva contraseña es obligatoria.')
+        .isLength({ min: 8 })
+        .withMessage('La nueva contraseña debe tener mínimo 8 caracteres.'),
+];
+
+/**
+ * Validadores para OLVIDÉ MI CONTRASEÑA
+ */
+export const validateForgotPassword = [
+    body('email')
+        .trim()
+        .notEmpty()
+        .withMessage('El correo electrónico es obligatorio.')
+        .isEmail()
+        .withMessage('El correo electrónico no tiene un formato válido.'),
+];
+
+/**
+ * Validadores para RESTABLECER CONTRASEÑA (con token del correo)
+ */
+export const validateResetPassword = [
+    body('email')
+        .trim()
+        .notEmpty()
+        .withMessage('El correo electrónico es obligatorio.')
+        .isEmail()
+        .withMessage('El correo electrónico no tiene un formato válido.'),
+
+    body('token')
+        .trim()
+        .notEmpty()
+        .withMessage('El token de restablecimiento es obligatorio.'),
+
+    body('newPassword')
+        .notEmpty()
+        .withMessage('La nueva contraseña es obligatoria.')
+        .isLength({ min: 8 })
+        .withMessage('La nueva contraseña debe tener mínimo 8 caracteres.'),
+];

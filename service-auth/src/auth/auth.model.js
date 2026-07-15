@@ -38,8 +38,25 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
     status: {
+      // Cuenta inactiva hasta que se verifica el correo con el token enviado al registrarse
       type: Boolean,
-      default: true,
+      default: false,
+    },
+    emailVerificationToken: {
+      type: String,
+      default: null,
+    },
+    emailVerificationTokenExpiry: {
+      type: Date,
+      default: null,
+    },
+    passwordResetToken: {
+      type: String,
+      default: null,
+    },
+    passwordResetTokenExpiry: {
+      type: Date,
+      default: null,
     },
   },
   {
