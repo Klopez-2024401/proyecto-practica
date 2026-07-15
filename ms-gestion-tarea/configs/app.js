@@ -40,7 +40,7 @@ const routes = (app) => {
 
 export const initServer = async () => {
   const app = express();
-  const PORT = process.env.PORT || 3001;
+  const PORT = process.env.PORT || 3003;
 
   try {
     // Conectar MongoDB
