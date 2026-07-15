@@ -50,7 +50,7 @@ export const LoginForm = () => {
       }
 
       notyfSuccess('¡Bienvenido de nuevo!')
-      navigate('/tasks')
+      navigate('/client')
       return
     }
 
