@@ -1,4 +1,4 @@
-import { ClientDashboardLayout } from '../components/ClientDashboardLayout.jsx'
+import { ClientDashboardLayout } from '../../../shared/components/layout/ClientDashboardLayout.jsx'
 import { getUser } from '../../../shared/utils/authSession.js'
 
 const ClipboardIcon = (props) => (

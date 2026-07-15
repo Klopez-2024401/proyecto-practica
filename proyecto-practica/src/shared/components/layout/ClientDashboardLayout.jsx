@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import logoImg from '../../../assets/img/logo.png'
-import { getUser, clearSession } from '../../../shared/utils/authSession.js'
+import { getUser, clearSession } from '../../utils/authSession.js'
 
 const HomeIcon = (props) => (
   <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
