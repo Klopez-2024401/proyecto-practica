@@ -5,7 +5,9 @@ import {
   getOverdueTasks,
   getPrioritySummary,
   getPendingTasks,
-  getCompletionStatistics
+  getCompletionStatistics,
+  saveHistory,
+  getHistory
 } from './productivity.controller.js';
 
 const router = Router();
@@ -18,5 +20,9 @@ router.get('/tasks/pending', getPendingTasks);
 router.get('/tasks/overdue', getOverdueTasks);
 router.get('/summary/priorities', getPrioritySummary);
 router.get('/statistics/completion', getCompletionStatistics);
+
+// Endpoints del historial de productividad
+router.post('/history', saveHistory);
+router.get('/history', getHistory);
 
 export default router;
