@@ -36,9 +36,12 @@ const taskSchema = new mongoose.Schema(
       type: Date,
       required: [true, 'La fecha límite de la tarea es requerida'],
     },
-    usuarioId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+    isPublic: {
+      type: Boolean,
+      default: false,
+    },
+    userId: {
+      type: String,
       required: [true, 'El ID de usuario es requerido para asociar la tarea'],
     }
   },
@@ -48,7 +51,6 @@ const taskSchema = new mongoose.Schema(
   }
 );
 
-// Índice compuesto para optimizar búsquedas por estado, prioridad y usuario
-taskSchema.index({ estado: 1, prioridad: 1, usuarioId: 1 });
+taskSchema.index({ estado: 1, prioridad: 1, userId: 1 });
 
 export default mongoose.model('Task', taskSchema);
