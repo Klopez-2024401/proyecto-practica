@@ -1,0 +1,76 @@
+import { body, validationResult } from 'express-validator';
+
+/**
+ * Middleware para validar errores de validación
+ * Debe ser usado DESPUÉS de todos los validadores
+ */
+export const validarCampos = (req, res, next) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            success: false,
+            message: 'Errores de validación',
+            errors: errors.array().map(error => ({
+                field: error.param,
+                message: error.msg,
+            }))
+        });
+    }
+
+    next();
+};
+
+/**
+ * Validadores para REGISTRO
+ */
+export const validateRegister = [
+    body('name')
+        .trim()
+        .notEmpty()
+        .withMessage('El nombre es obligatorio.')
+        .isLength({ min: 2, max: 50 })
+        .withMessage('El nombre debe tener entre 2 y 50 caracteres.'),
+
+    body('surname')
+        .trim()
+        .notEmpty()
+        .withMessage('El apellido es obligatorio.')
+        .isLength({ min: 2, max: 50 })
+        .withMessage('El apellido debe tener entre 2 y 50 caracteres.'),
+
+    body('email')
+        .trim()
+        .notEmpty()
+        .withMessage('El correo electrónico es obligatorio.')
+        .isEmail()
+        .withMessage('El correo electrónico no tiene un formato válido.'),
+
+    body('password')
+        .notEmpty()
+        .withMessage('La contraseña es obligatoria.')
+        .isLength({ min: 8 })
+        .withMessage('La contraseña debe tener mínimo 8 caracteres.'),
+
+    body('phone')
+        .optional({ nullable: true })
+        .trim()
+        .isLength({ min: 8, max: 8 })
+        .withMessage('El teléfono debe tener exactamente 8 dígitos.'),
+];
+
+/**
+ * Validadores para LOGIN
+ */
+export const validateLogin = [
+    body('email')
+        .trim()
+        .notEmpty()
+        .withMessage('El correo electrónico es obligatorio.')
+        .isEmail()
+        .withMessage('El correo electrónico no tiene un formato válido.'),
+
+    body('password')
+        .notEmpty()
+        .withMessage('La contraseña es obligatoria.'),
+];
