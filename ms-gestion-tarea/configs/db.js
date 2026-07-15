@@ -31,7 +31,7 @@ export const dbConnection = async () => {
       console.log('MongoDB | Desconectado de MongoDB (ms-tasks)');
     });
 
-    const uri = process.env.URI_MONGODB || 'mongodb://127.0.0.1:27017/db_gestion_tareas';
+    const uri = process.env.URI_MONGODB || 'mongodb://127.0.0.1:27017/Kairo';
 
     await mongoose.connect(uri, {
       serverSelectionTimeoutMS: 5000,
