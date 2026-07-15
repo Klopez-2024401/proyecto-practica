@@ -23,6 +23,8 @@ export const ForgotPasswordForm = () => {
   } = useForm()
 
   const onSubmit = async ({ email }) => {
+    if (loading) return
+
     setSuccessMessage(null)
     const result = await forgotPassword(email.trim())
 

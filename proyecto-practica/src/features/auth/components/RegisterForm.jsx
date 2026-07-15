@@ -35,6 +35,8 @@ export const RegisterForm = () => {
   } = useForm()
 
   const onSubmit = async (data) => {
+    if (loading) return
+
     const formData = new FormData()
     formData.append('name', data.name.trim())
     formData.append('surname', data.surname.trim())

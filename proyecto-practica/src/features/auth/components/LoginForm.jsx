@@ -37,6 +37,8 @@ export const LoginForm = () => {
   })
 
   const onSubmit = async ({ emailOrUsername, password, rememberMe }) => {
+    if (loading) return
+
     setUnverifiedEmail(null)
     setResendStatus(null)
 

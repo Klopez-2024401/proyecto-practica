@@ -174,6 +174,7 @@ export const TasksPage = () => {
   }
 
   const handleFormSubmit = async (form) => {
+    if (submitting) return
     setSubmitting(true)
 
     try {
@@ -198,7 +199,7 @@ export const TasksPage = () => {
   }
 
   const handleDeleteConfirm = async () => {
-    if (!deletingTask) return
+    if (!deletingTask || deleting) return
     setDeleting(true)
 
     try {

@@ -42,6 +42,7 @@ export const TaskFormModal = ({ open, task, onClose, onSubmit, submitting }) => 
 
   const handleSubmit = async (event) => {
     event.preventDefault()
+    if (submitting) return
 
     if (!form.titulo.trim()) {
       setError('El título es obligatorio.')
