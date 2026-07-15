@@ -1,14 +1,14 @@
 import axios from 'axios'
 import { getToken, clearSession } from '../utils/authSession.js'
 
-export const authApi = axios.create({
-  baseURL: import.meta.env.VITE_AUTH_URL,
+export const tasksApi = axios.create({
+  baseURL: import.meta.env.VITE_TASKS_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 })
 
-authApi.interceptors.request.use((config) => {
+tasksApi.interceptors.request.use((config) => {
   const token = getToken()
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
@@ -16,10 +16,10 @@ authApi.interceptors.request.use((config) => {
   return config
 })
 
-authApi.interceptors.response.use(
+tasksApi.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
+    if (error.response?.status === 401) {
       clearSession()
       window.location.href = '/login'
     }

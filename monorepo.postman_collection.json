@@ -319,6 +319,73 @@
 					"response": []
 				},
 				{
+					"name": "Guardar en historial de productividad",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"totalTareas\": 10,\n    \"completadasTareas\": 6,\n    \"pendientesTareas\": 4,\n    \"porcentajeCompletadas\": 60.00,\n    \"porcentajePendientes\": 40.00\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{productivity_url}}/productivity/history",
+							"host": [
+								"{{productivity_url}}"
+							],
+							"path": [
+								"productivity",
+								"history"
+							]
+						},
+						"description": "Guarda un registro de productividad en la base de datos MongoDB. Si dejas el JSON del body vacío {}, el servidor llamará automáticamente a Servicio A, calculará los datos en tiempo real y los guardará."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener historial de productividad",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{productivity_url}}/productivity/history",
+							"host": [
+								"{{productivity_url}}"
+							],
+							"path": [
+								"productivity",
+								"history"
+							]
+						},
+						"description": "Obtiene la lista de registros de rendimiento histórico guardados para el usuario actual."
+					},
+					"response": []
+				},
+				{
 					"name": "Health check (Productividad)",
 					"request": {
 						"method": "GET",

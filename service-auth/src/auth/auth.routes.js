@@ -18,6 +18,7 @@ const router = Router();
 router.post(
   '/register',
   authRateLimit,
+  uploadProfilePicture,
   validateRegister,
   validarCampos,
   authController.register
