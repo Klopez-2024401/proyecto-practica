@@ -6,6 +6,7 @@ export const errorMiddleware = (err, req, res, next) => {
     res.status(statusCode).json({
         success: false,
         message,
+        ...(err.data && { ...err.data }),
         ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
     });
 };

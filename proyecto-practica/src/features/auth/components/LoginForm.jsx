@@ -1,200 +1,105 @@
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import { authApi } from '../../../shared/api/authApi.js'
+import { useAuthStore } from '../store/authStore.js'
+import {
+  AuthInput,
+  AuthPrimaryButton,
+  AuthSwitchLink,
+  MailIcon,
+  LockIcon,
+  EyeIcon,
+  EyeOffIcon,
+} from '../../../shared/components/auth/index.js'
+import { notyfSuccess, notyfError } from '../../../shared/utils/notyf.js'
 
-const REMEMBERED_EMAIL_KEY = 'rememberedEmail'
-
-const MailIcon = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-    <path
-      d="M3 6.75A2.25 2.25 0 0 1 5.25 4.5h13.5A2.25 2.25 0 0 1 21 6.75v10.5A2.25 2.25 0 0 1 18.75 19.5H5.25A2.25 2.25 0 0 1 3 17.25V6.75Z"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    />
-    <path
-      d="m4 7 7.386 5.13a1 1 0 0 0 1.228 0L20 7"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-
-const LockIcon = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-    <rect
-      x="4.5"
-      y="10.5"
-      width="15"
-      height="9.5"
-      rx="2"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    />
-    <path
-      d="M7.75 10.5V7.75a4.25 4.25 0 1 1 8.5 0v2.75"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    />
-  </svg>
-)
-
-const EyeIcon = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-    <path
-      d="M2.25 12S5.25 5.25 12 5.25 21.75 12 21.75 12 18.75 18.75 12 18.75 2.25 12 2.25 12Z"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinejoin="round"
-    />
-    <circle cx="12" cy="12" r="2.75" stroke="currentColor" strokeWidth="1.5" />
-  </svg>
-)
-
-const EyeOffIcon = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-    <path
-      d="M3 3l18 18M10.58 10.58a2.75 2.75 0 0 0 3.89 3.89M6.53 6.65C4.24 8.12 2.25 12 2.25 12S5.25 18.75 12 18.75c1.9 0 3.5-.53 4.8-1.28M9.88 5.4A9.5 9.5 0 0 1 12 5.25c6.75 0 9.75 6.75 9.75 6.75a15.6 15.6 0 0 1-2.53 3.63"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-
-const AlertIcon = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
-    <path
-      d="M12 8v5"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    />
-    <circle cx="12" cy="15.75" r="0.9" fill="currentColor" />
-  </svg>
-)
-
-const SpinnerIcon = (props) => (
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-    <circle
-      cx="12"
-      cy="12"
-      r="9"
-      stroke="currentColor"
-      strokeWidth="3"
-      className="opacity-25"
-    />
-    <path
-      d="M21 12a9 9 0 0 0-9-9"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      className="opacity-90"
-    />
-  </svg>
-)
+const REMEMBERED_IDENTIFIER_KEY = 'rememberedIdentifier'
 
 export const LoginForm = () => {
   const navigate = useNavigate()
-  const [email, setEmail] = useState(
-    () => localStorage.getItem(REMEMBERED_EMAIL_KEY) || ''
-  )
-  const [password, setPassword] = useState('')
+  const login = useAuthStore((state) => state.login)
+  const resendVerification = useAuthStore((state) => state.resendVerification)
+  const loading = useAuthStore((state) => state.loading)
+
   const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(
-    () => Boolean(localStorage.getItem(REMEMBERED_EMAIL_KEY))
-  )
-  const [error, setError] = useState(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [unverifiedEmail, setUnverifiedEmail] = useState(null)
+  const [resendStatus, setResendStatus] = useState(null)
 
-  const handleLoginSubmit = async (event) => {
-    event.preventDefault()
-    setError(null)
-    setIsLoading(true)
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      emailOrUsername: localStorage.getItem(REMEMBERED_IDENTIFIER_KEY) || '',
+      rememberMe: Boolean(localStorage.getItem(REMEMBERED_IDENTIFIER_KEY)),
+    },
+  })
 
-    try {
-      const response = await authApi.post('/auth/login', {
-        emailOrUsername: email,
-        password,
-      })
+  const onSubmit = async ({ emailOrUsername, password, rememberMe }) => {
+    setUnverifiedEmail(null)
+    setResendStatus(null)
 
-      const { token, userDetails } = response.data
-      localStorage.setItem('token', token)
-      localStorage.setItem('role', userDetails.role)
+    const result = await login({ emailOrUsername, password })
 
+    if (result.success) {
       if (rememberMe) {
-        localStorage.setItem(REMEMBERED_EMAIL_KEY, email)
+        localStorage.setItem(REMEMBERED_IDENTIFIER_KEY, emailOrUsername.trim())
       } else {
-        localStorage.removeItem(REMEMBERED_EMAIL_KEY)
+        localStorage.removeItem(REMEMBERED_IDENTIFIER_KEY)
       }
 
-      if (userDetails.role === 'PLATFORM_ADMIN') {
-        navigate('/admin')
-      } else {
-        navigate('/client')
-      }
-    } catch (err) {
-      setError(
-        err.response?.data?.message || 'No se pudo iniciar sesión. Intenta de nuevo.'
-      )
-    } finally {
-      setIsLoading(false)
+      notyfSuccess('¡Bienvenido de nuevo!')
+      navigate('/tasks')
+      return
+    }
+
+    notyfError(result.error || 'No se pudo iniciar sesión')
+    if (result.status === 403) {
+      // El backend siempre incluye el correo real de la cuenta en este caso,
+      // aunque se haya iniciado sesión con el nombre de usuario.
+      setUnverifiedEmail(result.email || null)
     }
   }
 
-  return (
-    <form onSubmit={handleLoginSubmit} noValidate className="space-y-5">
-      <div>
-        <label
-          htmlFor="email"
-          className="mb-1.5 block text-sm font-medium text-text-primary"
-        >
-          Correo electrónico
-        </label>
-        <div className="group relative">
-          <MailIcon className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-text-secondary transition-colors group-focus-within:text-secondary" />
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="correo@ejemplo.com"
-            autoComplete="email"
-            required
-            disabled={isLoading}
-            className="w-full rounded-xl border border-border bg-white py-2.5 pl-10 pr-3 text-sm text-text-primary placeholder:text-text-secondary/60 transition-all duration-200 focus:border-secondary focus:outline-none focus:ring-4 focus:ring-secondary/15 disabled:cursor-not-allowed disabled:bg-surface disabled:opacity-60"
-          />
-        </div>
-      </div>
+  const handleResendVerification = async () => {
+    if (!unverifiedEmail) return
 
-      <div>
-        <label
-          htmlFor="password"
-          className="mb-1.5 block text-sm font-medium text-text-primary"
-        >
-          Contraseña
-        </label>
-        <div className="group relative">
-          <LockIcon className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-text-secondary transition-colors group-focus-within:text-secondary" />
-          <input
-            id="password"
-            type={showPassword ? 'text' : 'password'}
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="••••••••"
-            autoComplete="current-password"
-            required
-            disabled={isLoading}
-            className="w-full rounded-xl border border-border bg-white py-2.5 pl-10 pr-10 text-sm text-text-primary placeholder:text-text-secondary/60 transition-all duration-200 focus:border-secondary focus:outline-none focus:ring-4 focus:ring-secondary/15 disabled:cursor-not-allowed disabled:bg-surface disabled:opacity-60"
-          />
+    setResendStatus('sending')
+    const result = await resendVerification(unverifiedEmail)
+    setResendStatus(result.success ? 'sent' : 'error')
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+      <AuthInput
+        id="emailOrUsername"
+        label="Correo o nombre de usuario"
+        placeholder="correo@ejemplo.com o usuario"
+        autoComplete="username"
+        icon={MailIcon}
+        register={register}
+        rules={{ required: 'El correo o nombre de usuario es obligatorio.' }}
+        error={errors.emailOrUsername}
+        disabled={loading}
+      />
+
+      <AuthInput
+        id="password"
+        label="Contraseña"
+        type={showPassword ? 'text' : 'password'}
+        placeholder="••••••••"
+        autoComplete="current-password"
+        icon={LockIcon}
+        register={register}
+        rules={{ required: 'La contraseña es obligatoria.' }}
+        error={errors.password}
+        disabled={loading}
+        rightElement={
           <button
             type="button"
             onClick={() => setShowPassword((prev) => !prev)}
-            disabled={isLoading}
+            disabled={loading}
             aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary transition-colors hover:text-primary disabled:cursor-not-allowed"
           >
@@ -204,47 +109,52 @@ export const LoginForm = () => {
               <EyeIcon className="h-5 w-5" />
             )}
           </button>
-        </div>
-      </div>
+        }
+      />
 
       <div className="flex items-center justify-between text-sm">
         <label className="flex cursor-pointer items-center gap-2 text-text-secondary select-none">
           <input
             type="checkbox"
-            checked={rememberMe}
-            onChange={(event) => setRememberMe(event.target.checked)}
-            disabled={isLoading}
+            disabled={loading}
             className="h-4 w-4 rounded border-border text-secondary accent-secondary focus:ring-2 focus:ring-secondary/30"
+            {...register('rememberMe')}
           />
           Recordarme
         </label>
-        <a
-          href="#"
-          onClick={(event) => event.preventDefault()}
-          className="font-medium text-secondary transition-colors hover:text-primary"
-        >
-          ¿Olvidaste tu contraseña?
-        </a>
+        <AuthSwitchLink
+          actionText="¿Olvidaste tu contraseña?"
+          to="/forgot-password"
+          className="text-sm"
+        />
       </div>
 
-      {error && (
-        <div
-          role="alert"
-          className="flex items-start gap-2 rounded-xl border border-error/20 bg-error/10 px-3.5 py-2.5 text-sm text-error animate-fade-in"
-        >
-          <AlertIcon className="mt-0.5 h-4 w-4 shrink-0" />
-          <span>{error}</span>
-        </div>
+      {unverifiedEmail && (
+        <p className="text-xs text-text-secondary">
+          <button
+            type="button"
+            onClick={handleResendVerification}
+            disabled={resendStatus === 'sending' || resendStatus === 'sent'}
+            className="font-medium text-secondary underline decoration-secondary/40 underline-offset-2 transition-colors hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {resendStatus === 'sent'
+              ? 'Código reenviado, revisa tu correo'
+              : resendStatus === 'sending'
+                ? 'Reenviando...'
+                : 'Reenviar código de verificación'}
+          </button>
+        </p>
       )}
 
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary/20 transition-all duration-200 hover:bg-secondary hover:shadow-lg hover:shadow-secondary/25 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-primary disabled:hover:shadow-md"
-      >
-        {isLoading && <SpinnerIcon className="h-4 w-4 animate-spin" />}
-        {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
-      </button>
+      <AuthPrimaryButton type="submit" loading={loading} loadingText="Iniciando sesión...">
+        Iniciar sesión
+      </AuthPrimaryButton>
+
+      <AuthSwitchLink
+        prefixText="¿No tienes cuenta?"
+        actionText="Regístrate"
+        to="/register"
+      />
     </form>
   )
 }

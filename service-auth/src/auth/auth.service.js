@@ -9,6 +9,7 @@ const buildUserResponse = (user) => ({
   id: user._id,
   name: user.name,
   surname: user.surname,
+  username: user.username,
   email: user.email,
   phone: user.phone,
   profilePicture: user.profilePicture || config.cloudinary.defaultAvatarUrl,
@@ -29,10 +30,17 @@ const sendVerificationEmail = (user, token) =>
       <p>Este código expira en ${config.verification.emailExpiryHours} horas.</p>`,
   });
 
-export const registerUser = async ({ name, surname, email, password, phone, profilePicture }) => {
-  const existingUser = await User.findOne({ email: email.toLowerCase() });
+export const registerUser = async ({ name, surname, username, email, password, phone, profilePicture }) => {
+  const existingUser = await User.findOne({
+    $or: [{ email: email.toLowerCase() }, { username }],
+  });
   if (existingUser) {
-    const error = new Error('Ya existe un usuario con este correo electrónico');
+    const isDuplicateEmail = existingUser.email === email.toLowerCase();
+    const error = new Error(
+      isDuplicateEmail
+        ? 'Ya existe un usuario con este correo electrónico'
+        : 'Ya existe un usuario con este nombre de usuario'
+    );
     error.statusCode = 409;
     throw error;
   }
@@ -43,6 +51,7 @@ export const registerUser = async ({ name, surname, email, password, phone, prof
   const newUser = await User.create({
     name,
     surname,
+    username,
     email,
     password: hashedPassword,
     phone,
@@ -57,8 +66,11 @@ export const registerUser = async ({ name, surname, email, password, phone, prof
   return buildUserResponse(newUser);
 };
 
-export const loginUser = async (email, password) => {
-  const user = await User.findOne({ email: email.toLowerCase() });
+export const loginUser = async (emailOrUsername, password) => {
+  const identifier = emailOrUsername.trim();
+  const user = await User.findOne({
+    $or: [{ email: identifier.toLowerCase() }, { username: identifier }],
+  });
   if (!user) {
     const error = new Error('Credenciales inválidas');
     error.statusCode = 401;
@@ -77,6 +89,9 @@ export const loginUser = async (email, password) => {
       'Debes verificar tu cuenta con el código enviado a tu correo antes de iniciar sesión.'
     );
     error.statusCode = 403;
+    // Se incluye el correo real de la cuenta para poder reenviar el código de
+    // verificación aunque el login se haya intentado con el username.
+    error.data = { email: user.email };
     throw error;
   }
 
