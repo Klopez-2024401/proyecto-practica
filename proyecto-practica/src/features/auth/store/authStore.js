@@ -56,6 +56,22 @@ export const useAuthStore = create((set) => ({
     }
   },
 
+  verifyEmail: async (email, token) => {
+    set({ loading: true, error: null })
+
+    try {
+      const response = await authApi.post('/auth/verify-email', { email, token })
+      set({ loading: false, error: null })
+
+      return { success: true, data: response.data }
+    } catch (err) {
+      const message = err.response?.data?.message || 'No se pudo verificar la cuenta.'
+      set({ loading: false, error: message })
+
+      return { success: false, error: message, status: err.response?.status }
+    }
+  },
+
   resendVerification: async (email) => {
     try {
       await authApi.post('/auth/resend-verification', { email })
