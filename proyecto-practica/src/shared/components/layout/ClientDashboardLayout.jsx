@@ -161,11 +161,7 @@ const LogoutIcon = (props) => (
 
 const NAV_ITEMS = [
   { label: 'Inicio', to: '/client', icon: HomeIcon },
-  { label: 'Tareas', to: '/tasks', icon: ChecklistIcon },
-  { label: 'Proyectos', icon: FolderIcon },
-  { label: 'Calendario', icon: CalendarIcon },
-  { label: 'Equipo', icon: UsersIcon },
-  { label: 'Reportes', icon: ReportsIcon },
+  { label: 'Tareas', to: '/tasks', icon: ChecklistIcon }
 ]
 
 const navItemClasses = ({ isActive }) =>
