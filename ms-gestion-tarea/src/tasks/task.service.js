@@ -5,8 +5,8 @@ import Task from './task.model.js';
  */
 class TaskService {
   /**
-   * Obtiene todas las tareas registradas en MongoDB.
-   * @returns {Promise<Array>} Listado de tareas.
+   * Obtiene todas las tareas registradas en la base de datos de MongoDB.
+   * @returns {Promise<Array>} Listado completo de tareas.
    */
   async getAllTasks() {
     try {

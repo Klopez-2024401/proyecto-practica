@@ -38,7 +38,7 @@ export const dbConnection = async () => {
       maxPoolSize: 10,
     });
   } catch (error) {
-    console.error(`❌ Error al conectar con MongoDB: ${error.message}`);
+    console.error(`Error al conectar con MongoDB: ${error.message}`);
     process.exit(1);
   }
 };
